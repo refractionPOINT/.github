@@ -10,3 +10,6 @@
 ## Related issues
 
 > Fix [#1]() 
+
+## Describe multi-tenancy segmentation
+
