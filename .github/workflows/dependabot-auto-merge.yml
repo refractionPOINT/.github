@@ -1,0 +1,42 @@
+# Reusable workflow: auto-merge Dependabot security PRs for Go (gomod) repos.
+# Minor and patch updates are auto-approved and auto-merged.
+# Major version updates require manual review.
+#
+# Usage from another repo:
+#
+#   name: Dependabot auto-merge
+#   on: pull_request
+#   jobs:
+#     auto-merge:
+#       uses: refractionPOINT/.github/.github/workflows/dependabot-auto-merge.yml@master
+#
+name: Dependabot auto-merge
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Auto-merge Go minor and patch security updates
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'gomod' &&
+          steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
