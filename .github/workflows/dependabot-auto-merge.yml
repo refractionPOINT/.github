@@ -32,7 +32,7 @@ jobs:
 
       - name: Auto-merge Go minor and patch security updates
         if: |
-          steps.metadata.outputs.package-ecosystem == 'gomod' &&
+          steps.metadata.outputs.package-ecosystem == 'go_modules' &&
           steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: |
           gh pr review --approve "$PR_URL"
